@@ -4,10 +4,10 @@ const LOG_MAX = Math.log10(1e6);     // 6
 
 const REGIONS: { label: string; maxNm: number; flex: number }[] = [
   { label: 'X-ray',     maxNm: 10,   flex: 1   },
-  { label: 'UV',        maxNm: 400,  flex: 1.5 },
-  { label: 'Visible',   maxNm: 700,  flex: 2   },
-  { label: 'IR',        maxNm: 1e5,  flex: 3   },
-  { label: 'Microwave', maxNm: 1e6,  flex: 2.5 },
+  { label: 'UV',        maxNm: 400,  flex: 2   },
+  { label: 'Visible',   maxNm: 700,  flex: 1   },
+  { label: 'IR',        maxNm: 1e5,  flex: 1.5 },
+  { label: 'Microwave', maxNm: 1e6,  flex: 0.5 },
 ];
 
 const TICKS = ['1 nm', '10 nm', '100 nm', '400 nm', '700 nm', '10 µm', '1 mm'];
