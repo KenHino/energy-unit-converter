@@ -14,6 +14,20 @@ body {
   color: var(--text);
 }
 
+#github-link {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  color: var(--text);
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  line-height: 0;
+}
+
+#github-link:hover {
+  opacity: 1;
+}
+
 #app {
   max-width: 640px;
   margin: 2rem auto;
