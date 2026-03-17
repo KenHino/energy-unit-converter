@@ -1,6 +1,7 @@
 import { UNITS } from './units.js';
 import { formatValue, FormatMode } from './formatter.js';
 import { parseLinear, parseReciprocal } from './parser.js';
+import { initSpectrum, updateSpectrum } from './spectrum.js';
 
 type ConvertAll     = (hartree: number) => Record<string, number>;
 type UnitToHartree  = (value: number, unit: string) => number;
@@ -79,6 +80,7 @@ function buildUI(): void {
   });
 
   document.getElementById('csv-btn')!.addEventListener('click', onCsvExport);
+  initSpectrum();
 }
 
 // ── Input handling ────────────────────────────────────────────────────────
@@ -111,17 +113,20 @@ function refreshDisplay(): void {
     if (v === undefined) continue;
     inputs[unit.key].value = formatValue(v, state.mode, state.sigFigs);
   }
+  updateSpectrum(state.values['nm']);
 }
 
 function clearAll(): void {
   state.values = {};
   for (const unit of UNITS) inputs[unit.key].value = '';
+  updateSpectrum(undefined);
 }
 
 function clearOthers(activeKey: string): void {
   for (const unit of UNITS) {
     if (unit.key !== activeKey) inputs[unit.key].value = '';
   }
+  updateSpectrum(undefined);
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────

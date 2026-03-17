@@ -29,6 +29,7 @@ function formatNm(nm: number): string {
 }
 
 export function initSpectrum(): void {
+  if (document.getElementById('em-spectrum')) return;
   const app = document.getElementById('app')!;
 
   const container = document.createElement('div');
@@ -71,6 +72,7 @@ export function initSpectrum(): void {
 }
 
 export function updateSpectrum(nm: number | undefined): void {
+  if (!pointerEl) return;
   if (nm === undefined || isNaN(nm) || nm <= 0) {
     pointerEl.style.display = 'none';
     return;
