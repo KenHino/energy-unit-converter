@@ -213,3 +213,41 @@ input[type="number"] {
   color: inherit;
   text-decoration: underline;
 }
+
+/* ── Responsive layout ────────────────────────────────────────────────── */
+
+/* Wide screens: expand content area and label column */
+@media (min-width: 900px) {
+  #app {
+    max-width: 860px;
+  }
+
+  .unit-row {
+    grid-template-columns: 200px 1fr auto;
+  }
+}
+
+/* Small screens: stack label above input */
+@media (max-width: 480px) {
+  #app {
+    margin: 1rem auto;
+  }
+
+  .unit-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+
+  .unit-label {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+
+  .unit-input {
+    grid-column: 1;
+  }
+
+  .copy-btn {
+    grid-column: 2;
+  }
+}
