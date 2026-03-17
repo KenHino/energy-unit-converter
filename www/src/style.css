@@ -145,23 +145,27 @@ input[type="number"] {
   position: relative;
   height: 20px;
   border-radius: 4px;
-  /* log range 1 nm → 1e6 nm (1 mm), 6 decades
-     X-ray  1–10 nm    →  0–16.7%
-     UV     10–400 nm  → 16.7–42%
-     VIS    400–700 nm → 42–57%  (rainbow)
-     IR     700–1e5 nm → 57–83%
-     µwave  1e5–1e6 nm → 83–100% */
+  /* Piecewise log scale — ticks evenly spaced at n/6*100%:
+     1nm=0%  10nm=16.67%  100nm=33.33%  400nm=50%  700nm=66.67%  10µm=83.33%  1mm=100%
+     Key positions recalculated into this coordinate system:
+       380 nm = 49.38%  400 nm = 50.00%  450 nm = 53.51%
+       500 nm = 56.65%  550 nm = 59.49%  600 nm = 62.08%
+       650 nm = 64.46%  700 nm = 66.67%  750 nm = 67.10% */
   background: linear-gradient(to right,
-    #111111  0%,
-    #440088 16%,
-    #6600aa 42%,
-    #7700cc 42%, #4400ff 44%, #0000ff 46%,
-    #00aaff 49%, #00ff88 51%, #aaff00 53%,
-    #ffff00 54.5%, #ffaa00 55.5%, #ff4400 56.5%,
-    #ff0000 57%,
-    #cc2200 57%,
-    #882200 70%,
-    #441100 83%,
+    #111111  0%,           /* X-ray */
+    #440088 16.67%,        /* UV start */
+    #7700cc 49.38%,        /* 380 nm: violet (visible start) */
+    #4400ff 50.00%,        /* 400 nm: violet-blue */
+    #0000ff 53.51%,        /* 450 nm: blue */
+    #00ccff 56.65%,        /* 500 nm: cyan */
+    #00ff44 59.49%,        /* 550 nm: green */
+    #ffff00 62.08%,        /* 600 nm: yellow */
+    #ff6600 64.46%,        /* 650 nm: orange */
+    #ff2200 66.67%,        /* 700 nm: red-orange */
+    #ff0000 67.10%,        /* 750 nm: red (visible end) */
+    #cc2200 67.10%,        /* IR start */
+    #882200 77%,
+    #441100 83.33%,
     #221100 100%
   );
   margin-bottom: 5px;

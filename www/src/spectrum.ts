@@ -12,6 +12,23 @@ const REGIONS: { label: string; maxNm: number; flex: number }[] = [
 
 const TICKS = ['1 nm', '10 nm', '100 nm', '400 nm', '700 nm', '10 µm', '1 mm'];
 
+// Piecewise log-interpolation anchors matching the evenly-spaced tick positions
+const TICK_NM  = [1,     10,      100,     400,     700,      1e4,     1e6];
+const TICK_PCT = [0, 16.667,  33.333,  50.000,  66.667,  83.333,  100.000];
+
+function nmToPct(nm: number): number {
+  if (nm <= TICK_NM[0]) return 0;
+  if (nm >= TICK_NM[TICK_NM.length - 1]) return 100;
+  for (let i = 0; i < TICK_NM.length - 1; i++) {
+    if (nm <= TICK_NM[i + 1]) {
+      const t = (Math.log10(nm) - Math.log10(TICK_NM[i])) /
+                (Math.log10(TICK_NM[i + 1]) - Math.log10(TICK_NM[i]));
+      return TICK_PCT[i] + t * (TICK_PCT[i + 1] - TICK_PCT[i]);
+    }
+  }
+  return 100;
+}
+
 let pointerEl: HTMLDivElement;
 let labelEl: HTMLSpanElement;
 
@@ -78,9 +95,7 @@ export function updateSpectrum(nm: number | undefined): void {
     return;
   }
 
-  const pct = Math.min(100, Math.max(0,
-    ((Math.log10(nm) - LOG_MIN) / (LOG_MAX - LOG_MIN)) * 100
-  ));
+  const pct = Math.min(100, Math.max(0, nmToPct(nm)));
 
   pointerEl.style.display = 'block';
   pointerEl.style.left = `${pct}%`;
