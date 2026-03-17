@@ -120,3 +120,79 @@ input[type="number"] {
   background: var(--surface);
   font-size: 0.9rem;
 }
+
+/* ── EM Spectrum Figure ───────────────────────────────────────────────── */
+
+#em-spectrum {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.spectrum-regions {
+  display: flex;
+  font-size: 0.6rem;
+  color: #777;
+  margin-bottom: 3px;
+  user-select: none;
+}
+
+.spectrum-regions span {
+  text-align: center;
+}
+
+.spectrum-bar-wrap {
+  position: relative;
+  height: 20px;
+  border-radius: 4px;
+  /* log range 1 nm → 1e6 nm (1 mm), 6 decades
+     X-ray  1–10 nm    →  0–16.7%
+     UV     10–400 nm  → 16.7–42%
+     VIS    400–700 nm → 42–57%  (rainbow)
+     IR     700–1e5 nm → 57–83%
+     µwave  1e5–1e6 nm → 83–100% */
+  background: linear-gradient(to right,
+    #111111  0%,
+    #440088 16%,
+    #6600aa 42%,
+    #7700cc 42%, #4400ff 44%, #0000ff 46%,
+    #00aaff 49%, #00ff88 51%, #aaff00 53%,
+    #ffff00 54.5%, #ffaa00 55.5%, #ff4400 56.5%,
+    #ff0000 57%,
+    #cc2200 57%,
+    #882200 70%,
+    #441100 83%,
+    #221100 100%
+  );
+  margin-bottom: 5px;
+}
+
+.spectrum-pointer {
+  display: none;
+  position: absolute;
+  top: -6px;
+  width: 2px;
+  height: 32px;
+  background: #111;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.spectrum-pointer-label {
+  position: absolute;
+  top: -24px;
+  transform: translateX(-50%);
+  background: #111;
+  color: #fff;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.spectrum-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.58rem;
+  color: #aaa;
+}
