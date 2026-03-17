@@ -97,7 +97,7 @@ function onInput(key: string): void {
     hartree = parseReciprocal(raw, (v) => unitToHartree(v, key));
   } else {
     const parsed = parseLinear(raw);
-    hartree = isNaN(parsed) ? NaN : unitToHartree(parsed, key);
+    hartree = isNaN(parsed) ? NaN : unitToHartree(parsed * (unit.scale ?? 1), key);
   }
 
   if (isNaN(hartree)) { clearOthers(key); return; }
@@ -111,7 +111,7 @@ function refreshDisplay(): void {
     if (unit.key === state.activeKey) continue;
     const v = state.values[unit.key];
     if (v === undefined) continue;
-    inputs[unit.key].value = formatValue(v, state.mode, state.sigFigs);
+    inputs[unit.key].value = formatValue(v / (unit.scale ?? 1), state.mode, state.sigFigs);
   }
   updateSpectrum(state.values['nm']);
 }

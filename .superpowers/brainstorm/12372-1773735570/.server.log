@@ -1,0 +1,13 @@
+file:///home/hinoken/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.4/skills/brainstorming/scripts/server.js:1
+const crypto = require('crypto');
+               ^
+
+ReferenceError: require is not defined in ES module scope, you can use import instead
+This file is being treated as an ES module because it has a '.js' file extension and '/home/hinoken/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.4/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///home/hinoken/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.4/skills/brainstorming/scripts/server.js:1:16
+    at ModuleJob.run (node:internal/modules/esm/module_job:195:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:336:24)
+    at async loadESM (node:internal/process/esm_loader:34:7)
+    at async handleMainPromise (node:internal/modules/run_main:106:12)
+
+Node.js v18.19.1
