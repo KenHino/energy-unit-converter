@@ -1,5 +1,5 @@
-use wasm_bindgen::prelude::*;
 use serde::Serialize;
+use wasm_bindgen::prelude::*;
 
 // ── Physical constants (CODATA 2018) ──────────────────────────────────────
 const EV_PER_HARTREE: f64 = 27.211386245988;
@@ -18,20 +18,20 @@ const MU_B: f64 = 9.2740100783e-24; // J/T
 
 fn unit_to_hartree_inner(value: f64, unit: &str) -> f64 {
     match unit {
-        "hartree"    => value,
-        "ryd"        => value / 2.0,
-        "ev"         => value / EV_PER_HARTREE,
-        "kcal_mol"   => value / KCAL_MOL_PER_HARTREE,
-        "kj_mol"     => value / KJ_MOL_PER_HARTREE,
-        "j"          => value / J_PER_HARTREE,
-        "k"          => value / K_PER_HARTREE,
+        "hartree" => value,
+        "ryd" => value / 2.0,
+        "ev" => value / EV_PER_HARTREE,
+        "kcal_mol" => value / KCAL_MOL_PER_HARTREE,
+        "kj_mol" => value / KJ_MOL_PER_HARTREE,
+        "j" => value / J_PER_HARTREE,
+        "k" => value / K_PER_HARTREE,
         "wavenumber" => value / WAVENUMBER_PER_HARTREE,
-        "hz"         => value / HZ_PER_HARTREE,
-        "nm"         => NM_HARTREE / value,
-        "sec"        => 1.0 / (HZ_PER_HARTREE * value),
-        "t_nmr"      => value * (GAMMA_H / (2.0 * std::f64::consts::PI)) / HZ_PER_HARTREE,
-        "t_epr"      => value * (G_E * MU_B) / J_PER_HARTREE,
-        _            => f64::NAN,
+        "hz" => value / HZ_PER_HARTREE,
+        "nm" => NM_HARTREE / value,
+        "sec" => 1.0 / (HZ_PER_HARTREE * value),
+        "t_nmr" => value * (GAMMA_H / (2.0 * std::f64::consts::PI)) / HZ_PER_HARTREE,
+        "t_epr" => value * (G_E * MU_B) / J_PER_HARTREE,
+        _ => f64::NAN,
     }
 }
 
@@ -54,21 +54,21 @@ struct ConversionResult {
 
 fn convert_all_inner(hartree: f64) -> ConversionResult {
     let hz = hartree * HZ_PER_HARTREE;
-    let j  = hartree * J_PER_HARTREE;
+    let j = hartree * J_PER_HARTREE;
     ConversionResult {
         hartree,
-        ryd:        hartree * 2.0,
-        ev:         hartree * EV_PER_HARTREE,
-        kcal_mol:   hartree * KCAL_MOL_PER_HARTREE,
-        kj_mol:     hartree * KJ_MOL_PER_HARTREE,
+        ryd: hartree * 2.0,
+        ev: hartree * EV_PER_HARTREE,
+        kcal_mol: hartree * KCAL_MOL_PER_HARTREE,
+        kj_mol: hartree * KJ_MOL_PER_HARTREE,
         j,
-        k:          hartree * K_PER_HARTREE,
+        k: hartree * K_PER_HARTREE,
         wavenumber: hartree * WAVENUMBER_PER_HARTREE,
         hz,
-        nm:         NM_HARTREE / hartree,
-        sec:        1.0 / hz,
-        t_nmr:      hz / (GAMMA_H / (2.0 * std::f64::consts::PI)),
-        t_epr:      j  / (G_E * MU_B),
+        nm: NM_HARTREE / hartree,
+        sec: 1.0 / hz,
+        t_nmr: hz / (GAMMA_H / (2.0 * std::f64::consts::PI)),
+        t_epr: j / (G_E * MU_B),
     }
 }
 
@@ -101,17 +101,29 @@ mod tests {
 
     #[test]
     fn roundtrip_ev() {
-        assert!(close(unit_to_hartree_inner(EV_PER_HARTREE, "ev"), 1.0, 1e-10));
+        assert!(close(
+            unit_to_hartree_inner(EV_PER_HARTREE, "ev"),
+            1.0,
+            1e-10
+        ));
     }
 
     #[test]
     fn roundtrip_kcal_mol() {
-        assert!(close(unit_to_hartree_inner(KCAL_MOL_PER_HARTREE, "kcal_mol"), 1.0, 1e-8));
+        assert!(close(
+            unit_to_hartree_inner(KCAL_MOL_PER_HARTREE, "kcal_mol"),
+            1.0,
+            1e-8
+        ));
     }
 
     #[test]
     fn roundtrip_kj_mol() {
-        assert!(close(unit_to_hartree_inner(KJ_MOL_PER_HARTREE, "kj_mol"), 1.0, 1e-8));
+        assert!(close(
+            unit_to_hartree_inner(KJ_MOL_PER_HARTREE, "kj_mol"),
+            1.0,
+            1e-8
+        ));
     }
 
     #[test]
@@ -126,12 +138,20 @@ mod tests {
 
     #[test]
     fn roundtrip_wavenumber() {
-        assert!(close(unit_to_hartree_inner(WAVENUMBER_PER_HARTREE, "wavenumber"), 1.0, 1e-8));
+        assert!(close(
+            unit_to_hartree_inner(WAVENUMBER_PER_HARTREE, "wavenumber"),
+            1.0,
+            1e-8
+        ));
     }
 
     #[test]
     fn roundtrip_hz() {
-        assert!(close(unit_to_hartree_inner(HZ_PER_HARTREE, "hz"), 1.0, 1e-8));
+        assert!(close(
+            unit_to_hartree_inner(HZ_PER_HARTREE, "hz"),
+            1.0,
+            1e-8
+        ));
     }
 
     #[test]
