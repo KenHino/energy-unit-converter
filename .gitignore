@@ -16,6 +16,12 @@ target
 # Git worktrees
 .worktrees/
 
+# Node.js dependencies
+node_modules/
+www/dist/
+www/.env
+www/.env.local
+
 # RustRover
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
