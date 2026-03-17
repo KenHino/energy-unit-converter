@@ -16,6 +16,9 @@ target
 # Git worktrees
 .worktrees/
 
+# wasm-pack output
+/pkg/
+
 # Node.js dependencies
 node_modules/
 www/dist/
