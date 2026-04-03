@@ -3,20 +3,28 @@ import { formatValue, FormatMode } from './formatter.js';
 import { parseLinear, parseReciprocal } from './parser.js';
 import { initSpectrum, updateSpectrum } from './spectrum.js';
 
-type ConvertAll     = (hartree: number) => Record<string, number>;
-type UnitToHartree  = (value: number, unit: string) => number;
+type ConvertAll = (hartree: number, codataVersion: string) => Record<string, number>;
+type UnitToHartree = (value: number, unit: string, codataVersion: string) => number;
 
 interface State {
   mode: FormatMode;
   sigFigs: number;
+  codataVersion: string;
   values: Record<string, number>;
   activeKey: string | null;
 }
 
-const state: State = { mode: 'A', sigFigs: 6, values: {}, activeKey: null };
+const state: State = {
+  mode: 'A',
+  sigFigs: 6,
+  codataVersion: '',
+  values: {},
+  activeKey: null,
+};
 
 let convertAll: ConvertAll;
 let unitToHartree: UnitToHartree;
+let codataVersions: string[] = [];
 
 const inputs: Record<string, HTMLInputElement> = {};
 
@@ -24,9 +32,15 @@ const inputs: Record<string, HTMLInputElement> = {};
 
 function buildUI(): void {
   const controls = document.getElementById('controls')!;
-  const grid     = document.getElementById('units-grid')!;
+  const grid = document.getElementById('units-grid')!;
+  const codataOptions = codataVersions
+    .map((version) => `<option value="${version}">CODATA ${version}</option>`)
+    .join('');
 
   controls.innerHTML = `
+    <label>CODATA:
+      <select id="codata-select">${codataOptions}</select>
+    </label>
     <label>Format:
       <select id="mode-select">
         <option value="A">A — scientific</option>
@@ -40,23 +54,26 @@ function buildUI(): void {
     <button id="csv-btn">Export CSV</button>
   `;
 
+  (document.getElementById('codata-select') as HTMLSelectElement).value = state.codataVersion;
+  updateCodataFooter();
+
   for (const unit of UNITS) {
-    const row     = document.createElement('div');
+    const row = document.createElement('div');
     row.className = 'unit-row';
 
-    const label     = document.createElement('div');
+    const label = document.createElement('div');
     label.className = 'unit-label';
     label.innerHTML = `${unit.label} <span class="unit-symbol">(${unit.symbol})</span>`;
 
-    const input        = document.createElement('input');
-    input.type         = 'text';
-    input.className    = 'unit-input';
-    input.dataset.key  = unit.key;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'unit-input';
+    input.dataset.key = unit.key;
     input.setAttribute('aria-label', unit.label);
-    inputs[unit.key]   = input;
+    inputs[unit.key] = input;
 
-    const copyBtn       = document.createElement('button');
-    copyBtn.className   = 'copy-btn';
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'copy-btn';
     copyBtn.textContent = 'Copy';
     copyBtn.addEventListener('click', () => onCopy(unit.key, copyBtn));
 
@@ -64,10 +81,15 @@ function buildUI(): void {
     grid.append(row);
   }
 
-  // Events
   for (const unit of UNITS) {
     inputs[unit.key].addEventListener('input', () => onInput(unit.key));
   }
+
+  document.getElementById('codata-select')!.addEventListener('change', (e) => {
+    state.codataVersion = (e.target as HTMLSelectElement).value;
+    updateCodataFooter();
+    recomputeForCodataChange();
+  });
 
   document.getElementById('mode-select')!.addEventListener('change', (e) => {
     state.mode = (e.target as HTMLSelectElement).value as FormatMode;
@@ -76,11 +98,37 @@ function buildUI(): void {
 
   document.getElementById('sigfig-input')!.addEventListener('input', (e) => {
     const n = parseInt((e.target as HTMLInputElement).value, 10);
-    if (n >= 1 && n <= 15) { state.sigFigs = n; refreshDisplay(); }
+    if (n >= 1 && n <= 15) {
+      state.sigFigs = n;
+      refreshDisplay();
+    }
   });
 
   document.getElementById('csv-btn')!.addEventListener('click', onCsvExport);
   initSpectrum();
+}
+
+function updateCodataFooter(): void {
+  const footerVersion = document.getElementById('codata-footer-version');
+  if (footerVersion) footerVersion.textContent = `CODATA ${state.codataVersion}`;
+}
+
+function recomputeForCodataChange(): void {
+  if (state.activeKey) {
+    const raw = inputs[state.activeKey].value.trim();
+    if (raw) {
+      onInput(state.activeKey);
+      return;
+    }
+  }
+
+  if (state.values.hartree !== undefined) {
+    state.values = convertAll(state.values.hartree, state.codataVersion);
+    refreshDisplay();
+    return;
+  }
+
+  updateSpectrum(undefined);
 }
 
 // ── Input handling ────────────────────────────────────────────────────────
@@ -88,21 +136,29 @@ function buildUI(): void {
 function onInput(key: string): void {
   state.activeKey = key;
   const raw = inputs[key].value.trim();
-  if (!raw) { clearAll(); return; }
+  if (!raw) {
+    clearAll();
+    return;
+  }
 
-  const unit = UNITS.find(u => u.key === key)!;
+  const unit = UNITS.find((u) => u.key === key)!;
   let hartree: number;
 
   if (unit.reciprocal) {
-    hartree = parseReciprocal(raw, (v) => unitToHartree(v, key));
+    hartree = parseReciprocal(raw, (v) => unitToHartree(v, key, state.codataVersion));
   } else {
     const parsed = parseLinear(raw);
-    hartree = isNaN(parsed) ? NaN : unitToHartree(parsed * (unit.scale ?? 1), key);
+    hartree = isNaN(parsed)
+      ? NaN
+      : unitToHartree(parsed * (unit.scale ?? 1), key, state.codataVersion);
   }
 
-  if (isNaN(hartree)) { clearOthers(key); return; }
+  if (isNaN(hartree)) {
+    clearOthers(key);
+    return;
+  }
 
-  state.values = convertAll(hartree);
+  state.values = convertAll(hartree, state.codataVersion);
   refreshDisplay();
 }
 
@@ -118,11 +174,13 @@ function refreshDisplay(): void {
 
 function clearAll(): void {
   state.values = {};
+  state.activeKey = null;
   for (const unit of UNITS) inputs[unit.key].value = '';
   updateSpectrum(undefined);
 }
 
 function clearOthers(activeKey: string): void {
+  state.values = {};
   for (const unit of UNITS) {
     if (unit.key !== activeKey) inputs[unit.key].value = '';
   }
@@ -146,17 +204,19 @@ function onCopy(key: string, btn: HTMLButtonElement): void {
 
 function onCsvExport(): void {
   if (Object.keys(state.values).length === 0) return;
-  const lines = UNITS.map(u => {
+  const lines = UNITS.map((u) => {
     const v = state.values[u.key];
-    const formatted = v !== undefined ? formatValue(v, state.mode, state.sigFigs) : '';
+    const formatted = v !== undefined
+      ? formatValue(v / (u.scale ?? 1), state.mode, state.sigFigs)
+      : '';
     return `${u.label},${formatted}`;
   });
-  const csv  = 'Unit,Value\n' + lines.join('\n');
+  const csv = 'Unit,Value\n' + lines.join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'energy-conversion.csv';
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `energy-conversion-codata-${state.codataVersion}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -164,10 +224,16 @@ function onCsvExport(): void {
 // ── Init ──────────────────────────────────────────────────────────────────
 
 export function initUI(
-  wasmConvertAll:    ConvertAll,
+  wasmConvertAll: ConvertAll,
   wasmUnitToHartree: UnitToHartree,
+  wasmCodataVersions: string[],
+  wasmDefaultCodataVersion: string,
 ): void {
-  convertAll    = wasmConvertAll;
+  convertAll = wasmConvertAll;
   unitToHartree = wasmUnitToHartree;
+  codataVersions = wasmCodataVersions;
+  state.codataVersion = codataVersions.includes(wasmDefaultCodataVersion)
+    ? wasmDefaultCodataVersion
+    : (codataVersions[0] ?? '2018');
   buildUI();
 }
